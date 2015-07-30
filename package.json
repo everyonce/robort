@@ -6,6 +6,8 @@
   "description": "Lydon's virtual personal assitant",
   "dependencies": {
     "conspire" : "latest",
+    "coffee-script" : "latest",
+    "express" : "latest",
     "cron": "^1.0.9",
     "htmlparser": "latest",
     "hubot": "^2.11.0",
