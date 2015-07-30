@@ -30,12 +30,12 @@
     "hubot-youtube": "^0.1.2",
     "request": "latest",
     "soupselect": "latest",
-    "time": "^0.11.1",
+    "time": "latest",
     "request": "latest",
     "underscore": "latest",
     "underscore.string": "latest"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "0.12.x"
   }
 }
