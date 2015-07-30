@@ -30,7 +30,6 @@
     "hubot-youtube": "^0.1.2",
     "request": "latest",
     "soupselect": "latest",
-    "time": "latest",
     "request": "latest",
     "underscore": "latest",
     "underscore.string": "latest"
