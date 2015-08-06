@@ -34,7 +34,8 @@
     "soupselect": "latest",
     "request": "latest",
     "underscore": "latest",
-    "underscore.string": "latest"
+    "underscore.string": "latest",
+    "yelp": "latest"
   },
   "engines": {
     "node": "0.12.x"
