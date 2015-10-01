@@ -42,12 +42,15 @@
 
   module.exports = (robot) ->
     robot.respond /(mem|memry|emm386) ([^\s]+)(\s+)?(.+)?/i, (msg) ->
+      console.log "memry logging"
+      console.log JSON.stringify(msg)
       keyword = msg.match[2]
       value = msg.match[4]
       user = msg.message.user
       room = msg.message.room
       if !value?
         if keyword is "list"
+           console.log JSON.stringify(msg.match)
            listAll robot, user.id, (response) ->
              msg.send response
         else
