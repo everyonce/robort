@@ -6,8 +6,8 @@
 #
 # Commands:
 #   hubot memry list
-#   hubot mem|memorize|remember keyword value1..n
-#   hubot mem|remember keyword
+#   hubot memry keyword value1..n
+#   hubot memry keyword
 #
 # Author:
 #   everyonce
