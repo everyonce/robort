@@ -5,7 +5,7 @@
 #   None
 #
 # Commands:
-#   hubot mem all
+#   hubot memry list
 #   hubot mem|memorize|remember keyword value1..n
 #   hubot mem|remember keyword
 #
@@ -13,63 +13,46 @@
 #   everyonce
   crypto = require('crypto')
 
-
-  webdisUrl = "http://webdis.myurl.com/"
-
-  gifMeApi = (cb) ->
-    cb "Prefix all of these with 'robort' then your gifme command:" +
-    "\nSave a gif for a keyword (url must begin with http:// and end with .gif): gifme add highfive <my highfive url here>" +
-    "\nRetrieve a random gif for a keyword: gifme highfive" +
-    "\nRetrieve a specific gif for a keyword (ordered in ascending order of upload): gifme highfive 2" +
-    "\nRetrieve all of your gifs and keyords (not in general or random rooms): gifme all" +
-    "\n Copy another user's gif to your personal keyword collection: gifme copy mknowles highfive" +
-    "\n Copy another user's alternate gif to your personal keyword collection: gifme copy mknowles highfive 2"
-
   # Display all the user's uploaded gifs
-  listAll = (robot, userId, room, cb) ->
-      lookupHash = crypto.createHash('md5').update(userId).update("LIST").digest("hex")
-      robot.http(webdisUrl + 'GET/' + lookupHash)
-        .get() (err, res, body) ->
-          # error checking code here
-          if res.statusCode isnt 200
-            cb "Request didn't come back HTTP 200 :("
-            return
-          cb JSON.parse(body)
+  buildKeywordHash = (userId, keyword) ->
+    'emm386'+crypto.createHash('md5').update(userId.toString()).update(keyword).digest("hex")
+  listAll = (robot, userId, cb) ->
+    list= JSON.parse(robot.brain.get(buildKeywordHash(userId,"LIST")))
+    if list is null
+      cb "I don't have anything memorized for you" 
+    else
+      cb list
 
   # Add a gif to the user's collection
   memAdd = (robot, userId, keyword, value, cb) ->
-    lookupHash = crypto.createHash('md5').update(userId).update(keyword).digest("hex")
-    robot.http(webdisUrl + 'SET/' + lookupHash + '/' + value.toString('base64'))
-      .get() (err, res, body) ->
-        # error checking code here
-        if res.statusCode isnt 200
-          cb "Error: #{body}"
-          return
-        cb "I'll remember #{keyword} forever"
+    robot.brain.set buildKeywordHash(userId,keyword), value.toString('base64')
+    previousList = JSON.parse(robot.brain.get(buildKeywordHash(userId,"LIST")))
+    if !previousList?
+      previousList = []
+    previousList.push keyword
+    robot.brain.set buildKeywordHash(userId,"LIST"),JSON.stringify(previousList).toString('base64')
+    cb "I'll remember #{keyword} forever"
+
+  memGet = (robot, userId, keyword, cb) ->
+    value = robot.brain.get(buildKeywordHash(userId,keyword))
+    if value is null
+      cb "I don't remember you telling me about "+keyword
+    else
+      cb value
 
   module.exports = (robot) ->
-    robot.respond /mem ([^\s]+)\S?(.+)?/i, (msg) ->
-      firstWord = msg.match[1]
+    robot.respond /(mem|memry|emm386) ([^\s]+)(\s+)?(.+)?/i, (msg) ->
+      keyword = msg.match[2]
+      value = msg.match[4]
       user = msg.message.user
       room = msg.message.room
-      msg.send JSON.stringify(user)
-      if firstWord is "all"
-        msg.send "Please visit: http://gifatme.azurewebsites.net/"
-      else if firstWord is "all"
-        msg.send "Please visit: http://gifatme.azurewebsites.net/"
+      if !value?
+        if keyword is "list"
+           listAll robot, user.id, (response) ->
+             msg.send response
+        else
+           memGet robot, user.id, keyword, (response) ->
+             msg.send response
       else
-        keyword = msg.match[4]
-          #if firstWord is "add"
-            #url = msg.match[6]
-            #if url?
-              #gifMeAdd robot, userName, keyword, url, (response) ->
-                #msg.send response
-            #else
-              #msg.send "Invalid URL. Start with http:// and end with .gif"
-          #else
-            ## get a gif entry
-            #index = msg.match[6]
-            #if !index
-              #index = 0
-            #gifMeGet robot, userName, keyword, index, (response) ->
-              #msg.send response
+        memAdd robot, user.id, keyword, value, (response) ->
+           msg.send response
