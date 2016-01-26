@@ -9,7 +9,7 @@
 # Author:
 #   everyonce
 
-
+require "newrelic"
 Util = require "util"
 request = require "request"
 qs = require "querystring"
